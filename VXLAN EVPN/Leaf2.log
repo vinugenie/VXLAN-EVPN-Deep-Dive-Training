@@ -1,48 +1,20 @@
 
-User Access Verification
-Leaf2 login: admin
-Password: 
-
-Cisco NX-OS Software
-Copyright (c) 2002-2022, Cisco Systems, Inc. All rights reserved.
-Nexus 9000v software ("Nexus 9000v Software") and related documentation,
-files or other reference materials ("Documentation") are
-the proprietary property and confidential information of Cisco
-Systems, Inc. ("Cisco") and are protected, without limitation,
-pursuant to United States and International copyright and trademark
-laws in the applicable jurisdiction which provide civil and criminal
-penalties for copying or distribution without Cisco's authorization.
-
-Any use or disclosure, in whole or in part, of the Nexus 9000v Software
-or Documentation to any third party for any purposes is expressly
-prohibited except as otherwise authorized by Cisco in writing.
-The copyrights to certain works contained herein are owned by other
-third parties and are used and distributed under license. Some parts
-of this software may be covered under the GNU Public License or the
-GNU Lesser General Public License. A copy of each such license is
-available at
-http://www.gnu.org/licenses/gpl.html and
-http://www.gnu.org/licenses/lgpl.html
-***************************************************************************
-*  Nexus 9000v is strictly limited to use for evaluation, demonstration   *
-*  and NX-OS education. Any use or disclosure, in whole or in part of     *
-*  the Nexus 9000v Software or Documentation to any third party for any   *
-*  purposes is expressly prohibited except as otherwise authorized by     *
-*  Cisco in writing.                                                      *
-***************************************************************************
+Leaf2# 
 Leaf2# term len 0
 Leaf2# show run
 
 !Command: show running-config
-!No configuration change since last restart
-!Time: Fri May 27 10:14:28 2022
+!Running configuration last done at: Wed Jul 13 15:02:51 2022
+!Time: Wed Jul 13 15:38:44 2022
 
-version 10.2(3) Bios:version  
+version 9.3(2) Bios:version  
 hostname Leaf2
 vdc Leaf2 id 1
   limit-resource vlan minimum 16 maximum 4094
   limit-resource vrf minimum 2 maximum 4096
   limit-resource port-channel minimum 0 maximum 511
+  limit-resource u4route-mem minimum 248 maximum 248
+  limit-resource u6route-mem minimum 96 maximum 96
   limit-resource m4route-mem minimum 58 maximum 58
   limit-resource m6route-mem minimum 8 maximum 8
 
@@ -55,28 +27,29 @@ feature vn-segment-vlan-based
 feature nv overlay
 
 no password strength-check
-username admin password 5 $5$DPDLNO$XufK/P436LC1aM5ZCt0tOMUNSFD9Si/0va1k//5akzD  role network-admin
+username admin password 5 $5$EJMLHC$mGOhuXGUxsflHwy3pzLyH2DfIIOh70ukJf6Mcy7YeTA  role network-admin
 ip domain-lookup
 copp profile strict
-snmp-server user admin network-admin auth md5 480E6219CF7CC2378ADED0B56C240D665B1F priv aes-128 01730669AABB04BF34067B64A2B8BDA29697 localizedV2key
-rmon event 1 log trap public description FATAL(1) owner PMON@FATAL
-rmon event 2 log trap public description CRITICAL(2) owner PMON@CRITICAL
-rmon event 3 log trap public description ERROR(3) owner PMON@ERROR
-rmon event 4 log trap public description WARNING(4) owner PMON@WARNING
-rmon event 5 log trap public description INFORMATION(5) owner PMON@INFO
+snmp-server user admin auth md5 0x5f803a91eaf4f9665aef6b1637439194 priv 0x5f803a91eaf4f9665aef6b1637439194 localizedkey engineID 128:0:0:9:3:12:153:27:123:0:0
+rmon event 1 description FATAL(1) owner PMON@FATAL
+rmon event 2 description CRITICAL(2) owner PMON@CRITICAL
+rmon event 3 description ERROR(3) owner PMON@ERROR
+rmon event 4 description WARNING(4) owner PMON@WARNING
+rmon event 5 description INFORMATION(5) owner PMON@INFO
 
 fabric forwarding anycast-gateway-mac 0001.0001.0001
-ip pim rp-address 12.12.12.12 group-list 224.0.0.0/4
+ip pim rp-address 102.102.102.102 group-list 224.0.0.0/4
 ip pim ssm range 232.0.0.0/8
-vlan 1,100-101,500
+vlan 1,100-102,500
 vlan 100
   vn-segment 10000
 vlan 101
   vn-segment 10001
+vlan 102
+  vn-segment 10002
 vlan 500
   vn-segment 50000
 
-route-map DIRECT permit 10
 vrf context EVPN_A
   vni 50000
   rd auto
@@ -85,19 +58,24 @@ vrf context EVPN_A
     route-target both auto evpn
 vrf context management
 
-
 interface Vlan1
 
 interface Vlan100
   no shutdown
   vrf member EVPN_A
-  ip address 10.150.1.254/24
+  ip address 10.100.1.254/24
   fabric forwarding mode anycast-gateway
 
 interface Vlan101
   no shutdown
   vrf member EVPN_A
-  ip address 10.150.2.254/24
+  ip address 10.101.1.254/24
+  fabric forwarding mode anycast-gateway
+
+interface Vlan102
+  no shutdown
+  vrf member EVPN_A
+  ip address 10.102.1.254/24
   fabric forwarding mode anycast-gateway
 
 interface Vlan500
@@ -110,8 +88,10 @@ interface nve1
   host-reachability protocol bgp
   source-interface loopback1
   member vni 10000
-    mcast-group 239.1.1.1
+    mcast-group 239.1.1.0
   member vni 10001
+    mcast-group 239.1.1.1
+  member vni 10002
     mcast-group 239.1.1.2
   member vni 50000 associate-vrf
 
@@ -141,7 +121,6 @@ interface Ethernet1/6
   switchport access vlan 100
 
 interface Ethernet1/7
-  switchport access vlan 101
 
 interface Ethernet1/8
 
@@ -257,6 +236,134 @@ interface Ethernet1/63
 
 interface Ethernet1/64
 
+interface Ethernet1/65
+
+interface Ethernet1/66
+
+interface Ethernet1/67
+
+interface Ethernet1/68
+
+interface Ethernet1/69
+
+interface Ethernet1/70
+
+interface Ethernet1/71
+
+interface Ethernet1/72
+
+interface Ethernet1/73
+
+interface Ethernet1/74
+
+interface Ethernet1/75
+
+interface Ethernet1/76
+
+interface Ethernet1/77
+
+interface Ethernet1/78
+
+interface Ethernet1/79
+
+interface Ethernet1/80
+
+interface Ethernet1/81
+
+interface Ethernet1/82
+
+interface Ethernet1/83
+
+interface Ethernet1/84
+
+interface Ethernet1/85
+
+interface Ethernet1/86
+
+interface Ethernet1/87
+
+interface Ethernet1/88
+
+interface Ethernet1/89
+
+interface Ethernet1/90
+
+interface Ethernet1/91
+
+interface Ethernet1/92
+
+interface Ethernet1/93
+
+interface Ethernet1/94
+
+interface Ethernet1/95
+
+interface Ethernet1/96
+
+interface Ethernet1/97
+
+interface Ethernet1/98
+
+interface Ethernet1/99
+
+interface Ethernet1/100
+
+interface Ethernet1/101
+
+interface Ethernet1/102
+
+interface Ethernet1/103
+
+interface Ethernet1/104
+
+interface Ethernet1/105
+
+interface Ethernet1/106
+
+interface Ethernet1/107
+
+interface Ethernet1/108
+
+interface Ethernet1/109
+
+interface Ethernet1/110
+
+interface Ethernet1/111
+
+interface Ethernet1/112
+
+interface Ethernet1/113
+
+interface Ethernet1/114
+
+interface Ethernet1/115
+
+interface Ethernet1/116
+
+interface Ethernet1/117
+
+interface Ethernet1/118
+
+interface Ethernet1/119
+
+interface Ethernet1/120
+
+interface Ethernet1/121
+
+interface Ethernet1/122
+
+interface Ethernet1/123
+
+interface Ethernet1/124
+
+interface Ethernet1/125
+
+interface Ethernet1/126
+
+interface Ethernet1/127
+
+interface Ethernet1/128
+
 interface mgmt0
   vrf member management
 
@@ -269,20 +376,14 @@ interface loopback1
   ip address 192.168.2.2/32
   ip router ospf 100 area 0.0.0.0
   ip pim sparse-mode
-
-interface loopback100
-  vrf member EVPN_A
-  ip address 100.1.1.2/32
-icam monitor scale
-
 line console
   exec-timeout 0
 line vty
-boot nxos bootflash:/nxos64-cs.10.2.3.F.bin 
+boot nxos bootflash:/nxos.9.3.2.bin 
 router ospf 100
   router-id 2.2.2.2
 router bgp 100
-  router-id 192.168.2.2
+  router-id 2.2.2.2
   address-family l2vpn evpn
   neighbor 10.10.10.10
     remote-as 100
@@ -296,8 +397,6 @@ router bgp 100
       send-community extended
   vrf EVPN_A
     address-family ipv4 unicast
-      network 100.1.1.2/32
-      redistribute direct route-map DIRECT
 
 
 

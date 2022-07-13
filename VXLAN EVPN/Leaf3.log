@@ -1,12 +1,12 @@
 show run
 
 !Command: show running-config
-!Running configuration last done at: Wed Jul 13 14:59:24 2022
-!Time: Wed Jul 13 15:39:23 2022
+!Running configuration last done at: Wed Jul 13 15:03:05 2022
+!Time: Wed Jul 13 15:39:08 2022
 
 version 9.3(2) Bios:version  
-hostname Spine1
-vdc Spine1 id 1
+hostname Leaf3
+vdc Leaf3 id 1
   limit-resource vlan minimum 16 maximum 4094
   limit-resource vrf minimum 2 maximum 4096
   limit-resource port-channel minimum 0 maximum 511
@@ -19,30 +19,82 @@ nv overlay evpn
 feature ospf
 feature bgp
 feature pim
+feature interface-vlan
+feature vn-segment-vlan-based
 feature nv overlay
 
 no password strength-check
-username admin password 5 $5$PMNBBO$Z80N77/azHGTARkV5467jgLEQQI5F4/qhzaV7obyC.6  role network-admin
+username admin password 5 $5$KKHCNI$PMm7CMQghyu/Jpn1ThEmqjAWaVokdzeNXW8/dYBinCD  role network-admin
 ip domain-lookup
 copp profile strict
-snmp-server user admin auth md5 0xabdfe80e6bb17d4140fca3153fcd296d priv 0xabdfe80e6bb17d4140fca3153fcd296d localizedkey engineID 128:0:0:9:3:12:1:252:172:0:0
+snmp-server user admin auth md5 0x0ad075b7dd2fc9156513455f306c2e9c priv 0x0ad075b7dd2fc9156513455f306c2e9c localizedkey engineID 128:0:0:9:3:12:120:73:81:0:0
 rmon event 1 description FATAL(1) owner PMON@FATAL
 rmon event 2 description CRITICAL(2) owner PMON@CRITICAL
 rmon event 3 description ERROR(3) owner PMON@ERROR
 rmon event 4 description WARNING(4) owner PMON@WARNING
 rmon event 5 description INFORMATION(5) owner PMON@INFO
 
+fabric forwarding anycast-gateway-mac 0001.0001.0001
 ip pim rp-address 102.102.102.102 group-list 224.0.0.0/4
 ip pim ssm range 232.0.0.0/8
-ip pim anycast-rp 10.10.10.10 102.102.102.102
-ip pim anycast-rp 20.20.20.20 102.102.102.102
-vlan 1
+vlan 1,100-102,500
+vlan 100
+  vn-segment 10000
+vlan 101
+  vn-segment 10001
+vlan 102
+  vn-segment 10002
+vlan 500
+  vn-segment 50000
 
+vrf context EVPN_A
+  vni 50000
+  rd auto
+  address-family ipv4 unicast
+    route-target both auto
+    route-target both auto evpn
 vrf context management
+
+interface Vlan1
+
+interface Vlan100
+  no shutdown
+  vrf member EVPN_A
+  ip address 10.100.1.254/24
+  fabric forwarding mode anycast-gateway
+
+interface Vlan101
+  no shutdown
+  vrf member EVPN_A
+  ip address 10.101.1.254/24
+  fabric forwarding mode anycast-gateway
+
+interface Vlan102
+  no shutdown
+  vrf member EVPN_A
+  ip address 10.102.1.254/24
+  fabric forwarding mode anycast-gateway
+
+interface Vlan500
+  no shutdown
+  vrf member EVPN_A
+  ip forward
+
+interface nve1
+  no shutdown
+  host-reachability protocol bgp
+  source-interface loopback1
+  member vni 10000
+    mcast-group 239.1.1.0
+  member vni 10001
+    mcast-group 239.1.1.1
+  member vni 10002
+    mcast-group 239.1.1.2
+  member vni 50000 associate-vrf
 
 interface Ethernet1/1
   no switchport
-  ip address 10.1.10.10/24
+  ip address 10.3.10.3/24
   ip ospf network point-to-point
   ip router ospf 100 area 0.0.0.0
   ip pim sparse-mode
@@ -50,25 +102,20 @@ interface Ethernet1/1
 
 interface Ethernet1/2
   no switchport
-  ip address 10.2.10.10/24
+  ip address 10.3.20.3/24
   ip ospf network point-to-point
   ip router ospf 100 area 0.0.0.0
   ip pim sparse-mode
   no shutdown
 
 interface Ethernet1/3
-  no switchport
-  ip address 10.3.10.10/24
-  ip ospf network point-to-point
-  ip router ospf 100 area 0.0.0.0
-  ip pim sparse-mode
-  no shutdown
 
 interface Ethernet1/4
 
 interface Ethernet1/5
 
 interface Ethernet1/6
+  switchport access vlan 101
 
 interface Ethernet1/7
 
@@ -318,8 +365,12 @@ interface mgmt0
   vrf member management
 
 interface loopback0
-  ip address 10.10.10.10/32
-  ip address 102.102.102.102/32 secondary
+  ip address 3.3.3.3/32
+  ip router ospf 100 area 0.0.0.0
+  ip pim sparse-mode
+
+interface loopback1
+  ip address 192.168.3.3/32
   ip router ospf 100 area 0.0.0.0
   ip pim sparse-mode
 line console
@@ -327,29 +378,23 @@ line console
 line vty
 boot nxos bootflash:/nxos.9.3.2.bin 
 router ospf 100
-  router-id 10.10.10.10
+  router-id 3.3.3.3
 router bgp 100
-  router-id 10.10.10.10
+  router-id 3.3.3.3
   address-family l2vpn evpn
-  neighbor 1.1.1.1
+  neighbor 10.10.10.10
     remote-as 100
     update-source loopback0
     address-family l2vpn evpn
       send-community extended
-      route-reflector-client
-  neighbor 2.2.2.2
+  neighbor 20.20.20.20
     remote-as 100
     update-source loopback0
     address-family l2vpn evpn
       send-community extended
-      route-reflector-client
-  neighbor 3.3.3.3
-    remote-as 100
-    update-source loopback0
-    address-family l2vpn evpn
-      send-community extended
-      route-reflector-client
+  vrf EVPN_A
+    address-family ipv4 unicast
 
 
 
-Spine1# 
+Leaf3# 

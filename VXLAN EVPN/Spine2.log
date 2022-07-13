@@ -1,18 +1,17 @@
-show ryb
-              ^
-% Invalid command at '^' marker.
-Spine2# show run
+show run
 
 !Command: show running-config
-!No configuration change since last restart
-!Time: Fri May 27 10:14:50 2022
+!Running configuration last done at: Wed Jul 13 14:59:38 2022
+!Time: Wed Jul 13 15:39:38 2022
 
-version 10.2(3) Bios:version  
+version 9.3(2) Bios:version  
 hostname Spine2
 vdc Spine2 id 1
   limit-resource vlan minimum 16 maximum 4094
   limit-resource vrf minimum 2 maximum 4096
   limit-resource port-channel minimum 0 maximum 511
+  limit-resource u4route-mem minimum 248 maximum 248
+  limit-resource u6route-mem minimum 96 maximum 96
   limit-resource m4route-mem minimum 58 maximum 58
   limit-resource m6route-mem minimum 8 maximum 8
 
@@ -20,19 +19,23 @@ nv overlay evpn
 feature ospf
 feature bgp
 feature pim
+feature nv overlay
 
 no password strength-check
-username admin password 5 $5$OOIDFP$DZhS6dzzG/FAEj5tEKEG96c4uIRa1/NCruFkp373rx5  role network-admin
+username admin password 5 $5$EOKBFO$nGSthKMcdt7XSOZf2gGqTJyBiLJ6uZEV1PTlQUaIMC9  role network-admin
 ip domain-lookup
 copp profile strict
-snmp-server user admin network-admin auth md5 040FC0286DB61BD85DDCFC344D37B83D9FFA priv aes-128 0152C27D7E9456DA68D6E05C5925FF66B091 localizedV2key
-rmon event 1 log trap public description FATAL(1) owner PMON@FATAL
-rmon event 2 log trap public description CRITICAL(2) owner PMON@CRITICAL
-rmon event 3 log trap public description ERROR(3) owner PMON@ERROR
-rmon event 4 log trap public description WARNING(4) owner PMON@WARNING
-rmon event 5 log trap public description INFORMATION(5) owner PMON@INFO
+snmp-server user admin auth md5 0xd10d242323f39e24c19abfdd3e6e2337 priv 0xd10d242323f39e24c19abfdd3e6e2337 localizedkey engineID 128:0:0:9:3:12:10:170:202:0:0
+rmon event 1 description FATAL(1) owner PMON@FATAL
+rmon event 2 description CRITICAL(2) owner PMON@CRITICAL
+rmon event 3 description ERROR(3) owner PMON@ERROR
+rmon event 4 description WARNING(4) owner PMON@WARNING
+rmon event 5 description INFORMATION(5) owner PMON@INFO
 
+ip pim rp-address 102.102.102.102 group-list 224.0.0.0/4
 ip pim ssm range 232.0.0.0/8
+ip pim anycast-rp 10.10.10.10 102.102.102.102
+ip pim anycast-rp 20.20.20.20 102.102.102.102
 vlan 1
 
 vrf context management
@@ -54,6 +57,12 @@ interface Ethernet1/2
   no shutdown
 
 interface Ethernet1/3
+  no switchport
+  ip address 10.3.20.20/24
+  ip ospf network point-to-point
+  ip router ospf 100 area 0.0.0.0
+  ip pim sparse-mode
+  no shutdown
 
 interface Ethernet1/4
 
@@ -177,19 +186,146 @@ interface Ethernet1/63
 
 interface Ethernet1/64
 
+interface Ethernet1/65
+
+interface Ethernet1/66
+
+interface Ethernet1/67
+
+interface Ethernet1/68
+
+interface Ethernet1/69
+
+interface Ethernet1/70
+
+interface Ethernet1/71
+
+interface Ethernet1/72
+
+interface Ethernet1/73
+
+interface Ethernet1/74
+
+interface Ethernet1/75
+
+interface Ethernet1/76
+
+interface Ethernet1/77
+
+interface Ethernet1/78
+
+interface Ethernet1/79
+
+interface Ethernet1/80
+
+interface Ethernet1/81
+
+interface Ethernet1/82
+
+interface Ethernet1/83
+
+interface Ethernet1/84
+
+interface Ethernet1/85
+
+interface Ethernet1/86
+
+interface Ethernet1/87
+
+interface Ethernet1/88
+
+interface Ethernet1/89
+
+interface Ethernet1/90
+
+interface Ethernet1/91
+
+interface Ethernet1/92
+
+interface Ethernet1/93
+
+interface Ethernet1/94
+
+interface Ethernet1/95
+
+interface Ethernet1/96
+
+interface Ethernet1/97
+
+interface Ethernet1/98
+
+interface Ethernet1/99
+
+interface Ethernet1/100
+
+interface Ethernet1/101
+
+interface Ethernet1/102
+
+interface Ethernet1/103
+
+interface Ethernet1/104
+
+interface Ethernet1/105
+
+interface Ethernet1/106
+
+interface Ethernet1/107
+
+interface Ethernet1/108
+
+interface Ethernet1/109
+
+interface Ethernet1/110
+
+interface Ethernet1/111
+
+interface Ethernet1/112
+
+interface Ethernet1/113
+
+interface Ethernet1/114
+
+interface Ethernet1/115
+
+interface Ethernet1/116
+
+interface Ethernet1/117
+
+interface Ethernet1/118
+
+interface Ethernet1/119
+
+interface Ethernet1/120
+
+interface Ethernet1/121
+
+interface Ethernet1/122
+
+interface Ethernet1/123
+
+interface Ethernet1/124
+
+interface Ethernet1/125
+
+interface Ethernet1/126
+
+interface Ethernet1/127
+
+interface Ethernet1/128
+
 interface mgmt0
   vrf member management
 
 interface loopback0
   ip address 20.20.20.20/32
+  ip address 102.102.102.102/32 secondary
   ip router ospf 100 area 0.0.0.0
   ip pim sparse-mode
-icam monitor scale
-
 line console
   exec-timeout 0
 line vty
-boot nxos bootflash:/nxos64-cs.10.2.3.F.bin 
+boot nxos bootflash:/nxos.9.3.2.bin 
 router ospf 100
   router-id 20.20.20.20
 router bgp 100
@@ -202,6 +338,12 @@ router bgp 100
       send-community extended
       route-reflector-client
   neighbor 2.2.2.2
+    remote-as 100
+    update-source loopback0
+    address-family l2vpn evpn
+      send-community extended
+      route-reflector-client
+  neighbor 3.3.3.3
     remote-as 100
     update-source loopback0
     address-family l2vpn evpn
