@@ -1,0 +1,425 @@
+show run
+
+!Command: show running-config
+!No configuration change since last restart
+!Time: Wed Jul 13 15:53:16 2022
+
+version 9.3(2) Bios:version  
+hostname Leaf1
+vdc Leaf1 id 1
+  limit-resource vlan minimum 16 maximum 4094
+  limit-resource vrf minimum 2 maximum 4096
+  limit-resource port-channel minimum 0 maximum 511
+  limit-resource u4route-mem minimum 248 maximum 248
+  limit-resource u6route-mem minimum 96 maximum 96
+  limit-resource m4route-mem minimum 58 maximum 58
+  limit-resource m6route-mem minimum 8 maximum 8
+
+nv overlay evpn
+feature ospf
+feature bgp
+feature pim
+feature interface-vlan
+feature vn-segment-vlan-based
+feature nv overlay
+
+no password strength-check
+username admin password 5 $5$KCBHCL$jgvGJZRQFMeyb6PYgHfpWP/IlZD/b53vGB0e/mdpPlB  role network-admin
+ip domain-lookup
+copp profile strict
+snmp-server user admin auth md5 0x065996025133e85348e7575344b21550 priv 0x065996025133e85348e7575344b21550 localizedkey engineID 128:0:0:9:3:12:153:129:182:0:0
+rmon event 1 description FATAL(1) owner PMON@FATAL
+rmon event 2 description CRITICAL(2) owner PMON@CRITICAL
+rmon event 3 description ERROR(3) owner PMON@ERROR
+rmon event 4 description WARNING(4) owner PMON@WARNING
+rmon event 5 description INFORMATION(5) owner PMON@INFO
+
+fabric forwarding anycast-gateway-mac 0001.0001.0001
+ip pim rp-address 102.102.102.102 group-list 224.0.0.0/4
+ip pim ssm range 232.0.0.0/8
+ip igmp snooping vxlan
+vlan 1,100-102,500
+vlan 100
+  vn-segment 10000
+vlan 101
+  vn-segment 10001
+vlan 102
+  vn-segment 10002
+vlan 500
+  vn-segment 50000
+
+route-map DIRECT permit 10
+vrf context EVPN_A
+  vni 50000
+  ip pim rp-address 99.99.99.99 group-list 224.0.0.0/4
+  ip pim ssm range 232.0.0.0/8
+  rd auto
+  address-family ipv4 unicast
+    route-target both auto
+    route-target both auto evpn
+vrf context management
+  ip route 0.0.0.0/0 192.168.0.1
+
+
+interface Vlan1
+
+interface Vlan100
+  no shutdown
+  vrf member EVPN_A
+  ip address 10.100.1.254/24
+  ip pim sparse-mode
+  ip pim neighbor-policy NONE
+  fabric forwarding mode anycast-gateway
+
+interface Vlan101
+  no shutdown
+  vrf member EVPN_A
+  ip address 10.101.1.254/24
+  fabric forwarding mode anycast-gateway
+
+interface Vlan500
+  no shutdown
+  vrf member EVPN_A
+  ip forward
+  ip pim sparse-mode
+
+interface nve1
+  no shutdown
+  host-reachability protocol bgp
+  source-interface loopback1
+  member vni 10000
+    mcast-group 239.1.1.0
+  member vni 10001
+    mcast-group 239.1.1.1
+  member vni 10002
+    mcast-group 239.1.1.2
+  member vni 50000 associate-vrf
+
+interface Ethernet1/1
+  no switchport
+  ip address 10.1.10.1/24
+  ip ospf network point-to-point
+  ip router ospf 100 area 0.0.0.0
+  ip pim sparse-mode
+  no shutdown
+
+interface Ethernet1/2
+  no switchport
+  ip address 10.1.20.1/24
+  ip ospf network point-to-point
+  ip router ospf 100 area 0.0.0.0
+  ip pim sparse-mode
+  no shutdown
+
+interface Ethernet1/3
+
+interface Ethernet1/4
+
+interface Ethernet1/5
+
+interface Ethernet1/6
+  switchport access vlan 100
+
+interface Ethernet1/7
+  switchport access vlan 100
+
+interface Ethernet1/8
+
+interface Ethernet1/9
+
+interface Ethernet1/10
+
+interface Ethernet1/11
+
+interface Ethernet1/12
+
+interface Ethernet1/13
+
+interface Ethernet1/14
+
+interface Ethernet1/15
+
+interface Ethernet1/16
+
+interface Ethernet1/17
+
+interface Ethernet1/18
+
+interface Ethernet1/19
+
+interface Ethernet1/20
+
+interface Ethernet1/21
+
+interface Ethernet1/22
+
+interface Ethernet1/23
+
+interface Ethernet1/24
+
+interface Ethernet1/25
+
+interface Ethernet1/26
+
+interface Ethernet1/27
+
+interface Ethernet1/28
+
+interface Ethernet1/29
+
+interface Ethernet1/30
+
+interface Ethernet1/31
+
+interface Ethernet1/32
+
+interface Ethernet1/33
+
+interface Ethernet1/34
+
+interface Ethernet1/35
+
+interface Ethernet1/36
+
+interface Ethernet1/37
+
+interface Ethernet1/38
+
+interface Ethernet1/39
+
+interface Ethernet1/40
+
+interface Ethernet1/41
+
+interface Ethernet1/42
+
+interface Ethernet1/43
+
+interface Ethernet1/44
+
+interface Ethernet1/45
+
+interface Ethernet1/46
+
+interface Ethernet1/47
+
+interface Ethernet1/48
+
+interface Ethernet1/49
+
+interface Ethernet1/50
+
+interface Ethernet1/51
+
+interface Ethernet1/52
+
+interface Ethernet1/53
+
+interface Ethernet1/54
+
+interface Ethernet1/55
+
+interface Ethernet1/56
+
+interface Ethernet1/57
+
+interface Ethernet1/58
+
+interface Ethernet1/59
+
+interface Ethernet1/60
+
+interface Ethernet1/61
+
+interface Ethernet1/62
+
+interface Ethernet1/63
+
+interface Ethernet1/64
+
+interface Ethernet1/65
+
+interface Ethernet1/66
+
+interface Ethernet1/67
+
+interface Ethernet1/68
+
+interface Ethernet1/69
+
+interface Ethernet1/70
+
+interface Ethernet1/71
+
+interface Ethernet1/72
+
+interface Ethernet1/73
+
+interface Ethernet1/74
+
+interface Ethernet1/75
+
+interface Ethernet1/76
+
+interface Ethernet1/77
+
+interface Ethernet1/78
+
+interface Ethernet1/79
+
+interface Ethernet1/80
+
+interface Ethernet1/81
+
+interface Ethernet1/82
+
+interface Ethernet1/83
+
+interface Ethernet1/84
+
+interface Ethernet1/85
+
+interface Ethernet1/86
+
+interface Ethernet1/87
+
+interface Ethernet1/88
+
+interface Ethernet1/89
+
+interface Ethernet1/90
+
+interface Ethernet1/91
+
+interface Ethernet1/92
+
+interface Ethernet1/93
+
+interface Ethernet1/94
+
+interface Ethernet1/95
+
+interface Ethernet1/96
+
+interface Ethernet1/97
+
+interface Ethernet1/98
+
+interface Ethernet1/99
+
+interface Ethernet1/100
+
+interface Ethernet1/101
+
+interface Ethernet1/102
+
+interface Ethernet1/103
+
+interface Ethernet1/104
+
+interface Ethernet1/105
+
+interface Ethernet1/106
+
+interface Ethernet1/107
+
+interface Ethernet1/108
+
+interface Ethernet1/109
+
+interface Ethernet1/110
+
+interface Ethernet1/111
+
+interface Ethernet1/112
+
+interface Ethernet1/113
+
+interface Ethernet1/114
+
+interface Ethernet1/115
+
+interface Ethernet1/116
+
+interface Ethernet1/117
+
+interface Ethernet1/118
+
+interface Ethernet1/119
+
+interface Ethernet1/120
+
+interface Ethernet1/121
+
+interface Ethernet1/122
+
+interface Ethernet1/123
+
+interface Ethernet1/124
+
+interface Ethernet1/125
+
+interface Ethernet1/126
+
+interface Ethernet1/127
+
+interface Ethernet1/128
+
+interface mgmt0
+  vrf member management
+  ip address 192.168.0.76/24
+
+interface loopback0
+  ip address 1.1.1.1/32
+  ip router ospf 100 area 0.0.0.0
+  ip pim sparse-mode
+
+interface loopback1
+  ip address 192.168.1.1/32
+  ip router ospf 100 area 0.0.0.0
+  ip pim sparse-mode
+
+interface loopback99
+  vrf member EVPN_A
+  ip address 99.99.99.99/32
+  ip pim sparse-mode
+
+interface loopback100
+  vrf member EVPN_A
+  ip address 100.1.1.1/32
+line console
+  exec-timeout 0
+line vty
+boot nxos bootflash:/nxos.9.3.2.bin 
+router ospf 100
+  router-id 1.1.1.1
+router bgp 100
+  router-id 1.1.1.1
+  address-family ipv4 mvpn
+  address-family l2vpn evpn
+  neighbor 10.10.10.10
+    remote-as 100
+    update-source loopback0
+    address-family ipv4 mvpn
+      send-community
+      send-community extended
+    address-family l2vpn evpn
+      send-community
+      send-community extended
+  neighbor 20.20.20.20
+    remote-as 100
+    update-source loopback0
+    address-family ipv4 mvpn
+      send-community
+      send-community extended
+    address-family l2vpn evpn
+      send-community
+      send-community extended
+  vrf EVPN_A
+    address-family ipv4 unicast
+      network 100.1.1.1/32
+      redistribute direct route-map DIRECT
+
+
+
+Leaf1# 
